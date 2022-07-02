@@ -44,10 +44,8 @@ void ACannon::Fire()
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Bullet = %d"), WhizBang));
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &ACannon::Reload, ReloadTime, false);
 }
-
-void ACannon::FireSpecial()
+void ACannon::Bang()
 {
-	
 	if (ActualBang == BangSize)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(BangTimer);
@@ -68,15 +66,15 @@ void ACannon::FireSpecial()
 	}
 	GetWorld()->GetTimerManager().SetTimer(BangTimer, this, &ACannon::Bang, BangInterval, false);
 
-	Bang();
-}
 
+}
 void ACannon::Reload()
 {
 	bCanFire = true;
 }
-void ACannon::Bang()
+void ACannon::FireSpecial()
 {
+
 	if (!bCanFire || WhizBang == 0)
 	{
 		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Red, "Not bullet");
@@ -84,6 +82,6 @@ void ACannon::Bang()
 	}
 
 	bCanFire = false;
+	Bang();
 }
-
 

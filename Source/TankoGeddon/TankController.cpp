@@ -85,7 +85,7 @@ void ATankController::FireSpecial()
 {
 	if (TankPawn)
 	{
-		TankPawn->Fire();
+		TankPawn->FireSpecial();
 	}
 }
 

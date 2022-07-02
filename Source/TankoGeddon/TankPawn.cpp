@@ -59,7 +59,7 @@ void ATankPawn::FireSpecial()
 {
 	if (Cannon)
 	{
-		Cannon->Fire();
+		Cannon->FireSpecial();
 	}
 }
 
