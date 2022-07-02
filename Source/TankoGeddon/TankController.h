@@ -15,17 +15,41 @@ class TANKOGEDDON_API ATankController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	//Cursor display properties
+	ATankController();
+
 	virtual void SetupInputComponent() override;
 
 	UPROPERTY()
 	class ATankPawn* TankPawn;
 
-protected:
+
+	//The vector is responsible for the position of the mouse
+	UPROPERTY()
+	FVector MousePos;
+
+    //Cursor display method
+	FVector GetMousePosition() { return MousePos; }
+	
+	//Get mouse position per frame
+	virtual void Tick(float DeltaSeconds) override;
+
 
 	virtual void SetPawn(APawn* InPawn) override;
+
 protected:
 	UFUNCTION()
 	void MoveForward(float Value);
+
+	UFUNCTION()
 	void MoveRight(float Value);
 
+	UFUNCTION()
+	void RotateRight(float Value);
+
+	UFUNCTION()
+	void Fire();
+
+	UFUNCTION()
+	void FireSpecial();
 };
