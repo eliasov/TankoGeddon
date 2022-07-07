@@ -20,31 +20,46 @@ public:
 	void FireSpecial();
 	//shooting type
 	void Reload();
-	void Bang();
+	
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 WhizBang = 20;
 
 protected:
 	//Cannon property
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* CannonMesh;
 
 	//Method projectile spawn 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
-	class UArrowComponent* ProjecttileSpawnPoint;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	class UArrowComponent* ProjectileSpawnPoint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	ECannonType CannonType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	float ReloadTime = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 WhizBang = 20;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	float BangTime = 5.0f;
+
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	float BangSize = 5;
+	float BangSize = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	float BangInterval = 0.1f;
+	float BangInterval = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		float FireRange = 100.0f;
+
+	//pointer to projetile class
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	TSubclassOf<class AProjectile> ProjectileClass;
+
+	
 
 
 
@@ -55,7 +70,7 @@ protected:
 private:
 	//Ammo accounting check
 	bool bCanFire = true;
-
+	void Bang();
 	
 	
 };

@@ -9,6 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SceneComponent.h"
 #include "Cannon.h"
+#include "Components\ArrowComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -31,6 +32,9 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("CannonSetupPoint"));
+	CannonSetupPoint->SetupAttachment(TurretMesh);
 }
 
 void ATankPawn::MoveForward(float Value)
@@ -46,6 +50,8 @@ void ATankPawn::RotateRight(float Value)
 {
 	RotateRightAxisValue = Value;
 }
+
+
 
 void ATankPawn::Fire()
 {
@@ -81,7 +87,7 @@ void ATankPawn::Tick(float DeltaSeconds)
 	CurrentRotateAxisValue = FMath::Lerp(CurrentRotateAxisValue, RotateRightAxisValue, InterpolationKey);
 	float YawRotation = RotationSpeed * RotateRightAxisValue * DeltaSeconds;
 
-	UE_LOG(LogTemp, Warning, TEXT("CurrentRotateAxis Value: %f, RotateRightAxisValue: %f"), CurrentRotateAxisValue, RotateRightAxisValue);
+	//UE_LOG(LogTemp, Warning, TEXT("CurrentRotateAxis Value: %f, RotateRightAxisValue: %f"), CurrentRotateAxisValue, RotateRightAxisValue);
 
 	FRotator CurrentRotation = GetActorRotation();
 
@@ -117,12 +123,12 @@ void ATankPawn::BeginPlay()
 	//Implementing getting the player controller
 	TankController = Cast<ATankController>(GetController());
 
-	SetupCannon();
+	SetupCannon(CannonClass);
 }
 
-void ATankPawn::SetupCannon()
+void ATankPawn::SetupCannon(TSubclassOf<ACannon> newCannonClass)
 {
-	if (!CannonClass)
+	if (!newCannonClass)
 	{
 		
 		return;
@@ -135,8 +141,29 @@ void ATankPawn::SetupCannon()
 	params.Instigator = this;
 	params.Owner = this;
 
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	Cannon = GetWorld()->SpawnActor<ACannon>(newCannonClass, params);
 
-	Cannon->AttachToComponent(TurretMesh, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+	
+}
+
+
+void ATankPawn::WeaponChange()
+{
+	if (bWeaponChange)
+	{
+		SetupCannon(SecondCannonClass);
+		bWeaponChange = false;
+	}
+	else
+	{
+		SetupCannon(EquippedCannonClass);
+		bWeaponChange = true;
+	}
+}
+void ATankPawn::SetAmount(int bullets)
+{
+	Cannon->WhizBang = Cannon->WhizBang + bullets;
 }
 

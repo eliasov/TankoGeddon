@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "GameStruct.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
@@ -18,19 +19,26 @@ public:
 	// Sets default values for this pawn's properties
 	ATankPawn();
 
-	
+	UFUNCTION()
 	void MoveForward(float Value);
+	UFUNCTION()
 	void MoveRight(float Value);
+	UFUNCTION()
 	void RotateRight(float Value);
 
+	
+	UFUNCTION()
 	void Fire();
+	UFUNCTION()
 	void FireSpecial();
+	UFUNCTION()
+	void WeaponChange();
 
 	virtual void Tick(float DeltaSeconds) override;
-
 	virtual void BeginPlay() override;
 
-	void SetupCannon();
+	void SetupCannon(TSubclassOf<ACannon> newCannonClass);
+	void SetAmount(int bullets);
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
@@ -46,7 +54,19 @@ protected:
 		class UCameraComponent* Camera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret | Components")
+	class UArrowComponent* CannonSetupPoint;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret | Components")
 	TSubclassOf<ACannon> CannonClass;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret | Components")
+		TSubclassOf<ACannon> EquippedCannonClass;
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret | Components")
+		TSubclassOf<ACannon> SecondCannonClass;
 
 	UPROPERTY()
 	ACannon* Cannon;
@@ -81,6 +101,7 @@ private:
 
 	float RotateRightAxisValue = 0.0f;
 	float CurrentRotateAxisValue = 0.0f;
+	bool bWeaponChange = true;
 
 
 };

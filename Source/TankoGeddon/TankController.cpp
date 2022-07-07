@@ -3,6 +3,7 @@
 
 #include "TankController.h"
 #include "TankPawn.h"
+#include "Components/InputComponent.h"
 
 //Cursor display properties
 ATankController::ATankController()
@@ -19,6 +20,8 @@ void ATankController::SetupInputComponent()
 	InputComponent->BindAxis("RotateRight", this, &ATankController::RotateRight);
 	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ATankController::Fire);
 	InputComponent->BindAction("FireSpecial", EInputEvent::IE_Pressed, this, &ATankController::FireSpecial);
+	InputComponent->BindAction("WeaponChange", EInputEvent::IE_Pressed, this, &ATankController::WeaponChange);
+	
 }
 
 void ATankController::Tick(float DeltaSeconds)
@@ -41,7 +44,7 @@ void ATankController::Tick(float DeltaSeconds)
 	
 	MousePos = TankPosition + dir * 1000.0f;
 	//Vector rendering
-	DrawDebugLine(GetWorld(), TankPosition, MousePos, FColor::Green, false, 0.5f, 0, 5);
+	//DrawDebugLine(GetWorld(), TankPosition, MousePos, FColor::Green, false, 0.5f, 0, 5);
 
 
 
@@ -53,6 +56,12 @@ void ATankController::SetPawn(APawn* InPawn)
 	Super::SetPawn(InPawn);
 
 	TankPawn = Cast<ATankPawn>(InPawn);
+}
+
+void ATankController::BeginPlay()
+{
+	Super::BeginPlay();
+	TankPawn = Cast<ATankPawn>(GetPawn());
 }
 
 void ATankController::MoveForward(float Value)
@@ -88,4 +97,13 @@ void ATankController::FireSpecial()
 		TankPawn->FireSpecial();
 	}
 }
+
+void ATankController::WeaponChange()
+{
+	if (TankPawn)
+	{
+		TankPawn->WeaponChange();
+	}
+}
+
 

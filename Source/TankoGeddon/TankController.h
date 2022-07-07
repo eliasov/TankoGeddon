@@ -36,6 +36,7 @@ public:
 
 
 	virtual void SetPawn(APawn* InPawn) override;
+	virtual void BeginPlay() override;
 
 protected:
 	UFUNCTION()
@@ -52,4 +53,7 @@ protected:
 
 	UFUNCTION()
 	void FireSpecial();
+
+	UFUNCTION()
+	void WeaponChange();
 };
