@@ -69,6 +69,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 		float RotateInterpolationKey = 0.1f;
+
 	
 	//Getting a pointer to a controller
 	UPROPERTY()
@@ -81,5 +82,5 @@ private:
 
 	float RotateRightAxisValue = 0.0f;
 	float CurrentRotateAxisValue = 0.0f;
-	bool bWeaponChange = true;
+	
 };

@@ -80,12 +80,7 @@ void ACannon::Fire()
 
 			FVector StartTrace = ProjectileSpawnPoint->GetComponentLocation();
 			FVector EndTrace = StartTrace + ProjectileSpawnPoint->GetForwardVector() * FireRange;
-			AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
-
-			if (projectile)
-			{
-				projectile->SetOwner(this);
-				projectile->Start();
+		
 
 				if (GetWorld()->LineTraceSingleByChannel(hitResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, traceParams))
 				{
@@ -117,14 +112,14 @@ void ACannon::Fire()
 				{
 					DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Purple, false, 0.5f, 0, 10);
 				}
-			}
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Bullet = %d"), WhizBang));
-		
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Bullet = %d"), WhizBang));
 	}
+	
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &ACannon::Reload, ReloadTime, false);
-	
-	
 }
+
+	
+
 
 void ACannon::FireSpecial()
 {

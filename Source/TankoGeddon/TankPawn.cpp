@@ -111,16 +111,11 @@ void ATankPawn::BeginPlay()
 
 void ATankPawn::WeaponChange()
 {
-	if (bWeaponChange)
-	{
-		SetupCannon(SecondCannonClass);
-		bWeaponChange = false;
-	}
-	else
-	{
-		SetupCannon(EquippedCannonClass);
-		bWeaponChange = true;
-	}
+	
+	TSubclassOf<ACannon> reverseCannon = EquippedCannonClass;
+	EquippedCannonClass = SecondCannonClass;
+	SecondCannonClass = reverseCannon;
+	SetupCannon(EquippedCannonClass);
 }
 void ATankPawn::SetAmount(int bullets)
 {
