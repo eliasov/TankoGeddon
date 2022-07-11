@@ -30,9 +30,6 @@ class TANKOGEDDON_API ATurret : public AMachinePawn
 	 bool IsPlayerInRange();	//Метод проверка нахождения игрока в зоне видимости
 	 bool CanFire();			//Можем ли мы стрелять
 
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	 TSubclassOf<ACannon> CannonClass;
-
 	 UPROPERTY()
 	 class APawn* PlayerPawn;
 	 //Компонент отвечающий за стрельбу

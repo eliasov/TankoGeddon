@@ -47,6 +47,10 @@ void ACannon::Fire()
 		if (!fireTextTurrent)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Fire projectile ")));
+			if (!fireTextTurrent)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Bullet = %d"), WhizBang));
+			}
 		}
 		
 			//Projectile firing implementation
@@ -114,14 +118,11 @@ void ACannon::Fire()
 					DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Purple, false, 0.5f, 0, 10);
 				}
 			}
-
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Bullet = %d"), WhizBang));
 		
 	}
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &ACannon::Reload, ReloadTime, false);
-	if (!fireTextTurrent)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Bullet = %d"), WhizBang));
-	}
+	
 	
 }
 

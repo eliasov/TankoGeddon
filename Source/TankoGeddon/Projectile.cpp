@@ -60,8 +60,26 @@ void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, 
 	
 	//Проверка актора на получения урона
 	AActor* owner = GetOwner();
-	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
+	if (owner)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Owner is %s"), *owner->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Owner is null"));
+	}
 	
+	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
+	if (ownerByOwner)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OwnerByOwner is %s"), *ownerByOwner->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Owner is null"));
+	}
+		
+
 	if (OtherActor != owner && OtherActor != ownerByOwner)
 	{
 		IDamageTaker* damageTakerActor = Cast<IDamageTaker>(OtherActor);
