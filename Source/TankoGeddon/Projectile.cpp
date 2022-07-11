@@ -5,6 +5,8 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "GameStruct.h"
+#include "DamageTaker.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -32,6 +34,16 @@ AProjectile::AProjectile()
 void AProjectile::Start()
 {
 	GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AProjectile::Move, MoveRate, true, MoveRate);
+	GetWorld()->GetTimerManager().SetTimer(DeactivateTimer, this, &AProjectile::Deactivate, DeactivateTime, false);
+}
+
+void AProjectile::Deactivate()
+{
+	bIsActivation = false;										//Наш объект не активен
+	SetActorLocation(FVector(0.0f, 0.0f, -50.0f));				//Перемещаем объект в невидимую позицию
+	GetWorld()->GetTimerManager().ClearTimer(DeactivateTimer);	//Отключаем таймер 
+	GetWorld()->GetTimerManager().ClearTimer(MoveTimer);		//Отключаем таймер на движение
+	SetActorEnableCollision(false);								//Отключаем коллизию
 }
 
 //The movement of the projectile in the direction of travel
@@ -45,10 +57,29 @@ void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, 
 {
 	//Outputting an intersection with an object to the console
 	UE_LOG(LogTemp, Warning, TEXT("Projectile collided with %s, collided with component %s"), *OtherActor->GetName(), *OverlappedComp->GetName());
+	
+	//Проверка актора на получения урона
+	AActor* owner = GetOwner();
+	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
+	
+	if (OtherActor != owner && OtherActor != ownerByOwner)
+	{
+		IDamageTaker* damageTakerActor = Cast<IDamageTaker>(OtherActor);
+		if (damageTakerActor)
+		{
+			FDamageData damageData;
+			damageData.DamageValue = Damage;
+			damageData.Instigator = owner;
+			damageData.DamageMaker = this;
 
-	OtherActor->Destroy();
-	Destroy();
-
+			damageTakerActor->TakeDamage(damageData);
+		}
+		else
+		{
+			OtherActor->Destroy();
+		}
+		Deactivate();
+	}
 }
 
 

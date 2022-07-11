@@ -17,10 +17,12 @@ public:
 
 	//Method start
 	void Start();
+	bool bIsActivation = false;
+	void Deactivate();
 
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* ProjectileMesh;
 
 	//Speed
@@ -35,6 +37,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	float Damage = 10.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		float DeactivateTime = 5.0f;
+
 	UFUNCTION()
 	void OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, 
 		class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -43,6 +48,7 @@ protected:
 
 	//Timer
 	FTimerHandle MoveTimer;
+	FTimerHandle DeactivateTimer;
 
 
 };

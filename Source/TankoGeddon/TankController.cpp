@@ -32,21 +32,25 @@ void ATankController::Tick(float DeltaSeconds)
 	FVector mouseDirection;
 	//Method mouse position transfer
 	DeprojectMousePositionToWorld(MousePos, mouseDirection);
-	//Define a vector between the player and the mouse position
-	FVector TankPosition = TankPawn->GetActorLocation();
-	//Equate the coordinates along the axis Z
-	MousePos.Z = TankPosition.Z;
+	if (TankPawn)
+	{
+		//Define a vector between the player and the mouse position
+		FVector TankPosition = TankPawn->GetActorLocation();
+		//Equate the coordinates along the axis Z
+		MousePos.Z = TankPosition.Z;
 
-	//The direction vector is equal to the difference between the mouse position and the player position
-	FVector dir = MousePos - TankPosition;
-	//Normalize the vector from -1 to 1
-	dir.Normalize();
+		//The direction vector is equal to the difference between the mouse position and the player position
+		FVector dir = MousePos - TankPosition;
+		//Normalize the vector from -1 to 1
+		dir.Normalize();
+
+		MousePos = TankPosition + dir * 1000.0f;
+		//Vector rendering
+		//DrawDebugLine(GetWorld(), TankPosition, MousePos, FColor::Green, false, 0.5f, 0, 5);
+
+
+	}
 	
-	MousePos = TankPosition + dir * 1000.0f;
-	//Vector rendering
-	//DrawDebugLine(GetWorld(), TankPosition, MousePos, FColor::Green, false, 0.5f, 0, 5);
-
-
 
 
 }

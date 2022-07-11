@@ -10,18 +10,13 @@
 #include "Components/SceneComponent.h"
 #include "Cannon.h"
 #include "Components\ArrowComponent.h"
+#include "HealthComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
-	RootComponent = BodyMesh;
-
-	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretMesh"));
-	TurretMesh->SetupAttachment(BodyMesh);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(BodyMesh);
@@ -33,8 +28,6 @@ ATankPawn::ATankPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("CannonSetupPoint"));
-	CannonSetupPoint->SetupAttachment(TurretMesh);
 }
 
 void ATankPawn::MoveForward(float Value)
@@ -51,15 +44,6 @@ void ATankPawn::RotateRight(float Value)
 	RotateRightAxisValue = Value;
 }
 
-
-
-void ATankPawn::Fire()
-{
-	if (Cannon)
-	{
-		Cannon->Fire();
-	}
-}
 
 void ATankPawn::FireSpecial()
 {
@@ -123,31 +107,7 @@ void ATankPawn::BeginPlay()
 	//Implementing getting the player controller
 	TankController = Cast<ATankController>(GetController());
 
-	SetupCannon(CannonClass);
 }
-
-void ATankPawn::SetupCannon(TSubclassOf<ACannon> newCannonClass)
-{
-	if (!newCannonClass)
-	{
-		
-		return;
-	}
-	if (Cannon)
-	{
-		Cannon->Destroy();
-	}
-	FActorSpawnParameters params;
-	params.Instigator = this;
-	params.Owner = this;
-
-	Cannon = GetWorld()->SpawnActor<ACannon>(newCannonClass, params);
-
-	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
-
-	
-}
-
 
 void ATankPawn::WeaponChange()
 {
@@ -166,4 +126,6 @@ void ATankPawn::SetAmount(int bullets)
 {
 	Cannon->WhizBang = Cannon->WhizBang + bullets;
 }
+
+
 

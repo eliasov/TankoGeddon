@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameStruct.h"
+#include "ProjectilePool.h"
 #include "Cannon.generated.h"
+
 
 UCLASS()
 class TANKOGEDDON_API ACannon : public AActor
@@ -20,6 +22,11 @@ public:
 	void FireSpecial();
 	//shooting type
 	void Reload();
+
+	bool IsReadyToFire() { return bCanFire; };
+
+	void CreateProjectilePool();
+	void Deactivate();
 	
 	
 	
@@ -27,6 +34,7 @@ public:
 		int32 WhizBang = 20;
 
 protected:
+	virtual void BeginPlay() override;
 	//Cannon property
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* CannonMesh;
@@ -44,6 +52,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	float BangTime = 5.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		bool fireTextTurrent = true;
+
 	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
@@ -55,22 +66,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 		float FireRange = 100.0f;
 
+
 	//pointer to projetile class
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	TSubclassOf<class AProjectile> ProjectileClass;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		TSubclassOf<AProjectilePool> ProjectilePoolClass;
 
-
+	UPROPERTY()
+		AProjectilePool* ProjectilePool;
 
 	FTimerHandle ReloadTimer;
 	FTimerHandle BangTimer;
+	FTimerHandle DeactivateTimer;
+	FTimerHandle MoveTimer;
 	int32 ActualBang = 0;
 
 private:
 	//Ammo accounting check
 	bool bCanFire = true;
 	void Bang();
+	bool bIsActivation = false;
 	
 	
 };
