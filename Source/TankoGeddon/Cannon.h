@@ -6,8 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "GameStruct.h"
 #include "ProjectilePool.h"
+#include "Projectile.h"
 #include "Cannon.generated.h"
 
+
+
+class AProjectilePool;
+class UCameraShake;
 
 UCLASS()
 class TANKOGEDDON_API ACannon : public AActor
@@ -74,8 +79,29 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		TSubclassOf<AProjectilePool> ProjectilePoolClass;
 
+	
+
 	UPROPERTY()
 		AProjectilePool* ProjectilePool;
+
+	//Effect
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UParticleSystemComponent* ShootEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UAudioComponent* AudioEffect;
+
+	//Effects добавил только что
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shaking")
+	class UForceFeedbackEffect* ShakingEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shaking")
+	TSubclassOf<class UCameraShakeBase> ShootShaking;
+
+
+	
+
+
 
 	FTimerHandle ReloadTimer;
 	FTimerHandle BangTimer;

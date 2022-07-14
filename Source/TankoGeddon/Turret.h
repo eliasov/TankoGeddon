@@ -7,6 +7,7 @@
 #include "DamageTaker.h"
 #include "GameStruct.h"
 #include "MachinePawn.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Turret.generated.h"
 
 
@@ -24,11 +25,22 @@ class TANKOGEDDON_API ATurret : public AMachinePawn
 	 // Called when the game starts or when spawned
 	 virtual void BeginPlay() override;
 
+	 FVector GetEyesPosition();
+
 	 void Destroyed();		//Метод уничтожения пушки
 	 void Targeting();		//Метод слежения за противником
 	 void RotateToPlayer();	//Метод Вращение за игроком 
-	 bool IsPlayerInRange();	//Метод проверка нахождения игрока в зоне видимости
+	
 	 bool CanFire();			//Можем ли мы стрелять
+
+	 
+
+	 //Только добавил
+	 bool IsPlayerSeen();		//Видимость игрока турелью
+	 bool IsPlayerInRange();	//Метод проверка нахождения игрока в зоне видимости
+
+
+	
 
 	 UPROPERTY()
 	 class APawn* PlayerPawn;
@@ -45,6 +57,8 @@ class TANKOGEDDON_API ATurret : public AMachinePawn
 	 //Точность 
 	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting")
 		 float Accurency = 30.0f;
+
+	
 
 	 //Путь до нашей мешки
 	 const FString BodyMeshPath = "StaticMesh'/Game/CSC/Meshes/SM_CSC_Tower1.SM_CSC_Tower1'";

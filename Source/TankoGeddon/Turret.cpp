@@ -2,6 +2,7 @@
 
 
 #include "Turret.h"
+#include "TankPawn.h"
 #include "Components\StaticMeshComponent.h"
 #include "Components\ArrowComponent.h"
 #include "Components\BoxComponent.h"
@@ -25,6 +26,8 @@ ATurret::ATurret()
 	UStaticMesh* TurretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
 	if (TurretMeshTemp)
 		TurretMesh->SetStaticMesh(TurretMeshTemp);
+
+	
 }
 
 
@@ -40,11 +43,20 @@ void ATurret::BeginPlay()
 
 }
 
+FVector ATurret::GetEyesPosition()
+{
+	return CannonSetupPoint->GetComponentLocation();
+}
+
 void ATurret::Destroyed()		//Метод уничтожения пушки
 {
-	if (Cannon)
+	if (Cannon) 
+	{
 		Cannon->Destroy();
+		
+	}
 }
+
 
 void ATurret::Targeting()		//Метод слежение за противником
 {
@@ -81,14 +93,46 @@ bool ATurret::IsPlayerInRange()	//Метод проверка нахождения игрока в зоне видимо
 	return FVector::Distance(PlayerPawn->GetActorLocation(), GetActorLocation()) <= TargetingRange;
 }
 
+
 bool ATurret::CanFire()			//Можем ли мы стрелять
 {
+	if (!IsPlayerSeen())
+	{
+		return false;
+	}
 	FVector targetingDir = TurretMesh->GetForwardVector();
 	FVector dirToPlayer = PlayerPawn->GetActorLocation() - GetActorLocation();
 	dirToPlayer.Normalize();
 
 	float aimAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(targetingDir, dirToPlayer)));
 	return aimAngle <= Accurency;
+}
+
+
+bool ATurret::IsPlayerSeen()
+{
+	FVector playerPos = PlayerPawn->GetActorLocation();	//Присваиваем позицию игрока
+	FVector eyesPos = GetEyesPosition();		//Присваиваем позицию глаз
+
+	FHitResult hitResult;
+
+	FCollisionQueryParams traceParams =
+		FCollisionQueryParams(FName(TEXT("FireTrace")), true, this);
+	traceParams.bTraceComplex = true;
+	//traceParams.AddIgnoredActor(TankPawn);				//Игнорируем танк павн
+	traceParams.bReturnPhysicalMaterial = false;		//Не возвращаем физ материал
+
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, eyesPos, playerPos, ECollisionChannel::ECC_Visibility, traceParams))
+	{
+		if (hitResult.GetActor())
+		{
+			DrawDebugLine(GetWorld(), eyesPos, hitResult.Location, FColor::Cyan, false, 0.5f, 0, 10);
+			return hitResult.GetActor() == PlayerPawn;	//Возвращаем результат нашему игроку
+
+		}
+	}
+	DrawDebugLine(GetWorld(), eyesPos, playerPos, FColor::Cyan, false, 0.5f, 0, 10); //Рисуем линию не до игрока
+	return false;
 }
 
 

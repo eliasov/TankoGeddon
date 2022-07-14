@@ -2,11 +2,14 @@
 
 
 #include "Cannon.h"
-#include "Components/ArrowComponent.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components\StaticMeshComponent.h"
+#include "Components\ArrowComponent.h"
 #include "Components\SceneComponent.h"
 #include "Projectile.h"
 #include "DrawDebugHelpers.h"
+#include "ProjectilePool.h"
+#include "Particles\ParticleSystemComponent.h"
+#include "Components\AudioComponent.h"
 #include "DamageTaker.h"
 
 // Sets default values
@@ -23,6 +26,11 @@ ACannon::ACannon()
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("ProjectileSpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(CannonSceneComponent);
+
+	ShootEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ShootEffect"));
+	ShootEffect->SetupAttachment(ProjectileSpawnPoint);
+	AudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioEffect"));
+
 }
 
 void ACannon::Fire()
@@ -41,6 +49,27 @@ void ACannon::Fire()
 	
 	bCanFire = false;
 	WhizBang--;
+
+	ShootEffect->ActivateSystem();
+	AudioEffect->Play();
+	//Shaking effect Добавил 
+	if (GetOwner() && GetOwner() == GetWorld()->GetFirstPlayerController()->GetPawn())
+	{
+		if (ShakingEffect)
+		{
+			FForceFeedbackParameters shakingEffectParams;
+			shakingEffectParams.bLooping = false;
+			shakingEffectParams.Tag = "shakingEffectParams";
+
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(ShakingEffect, shakingEffectParams);
+
+		}
+
+		if (ShootShaking)
+		{
+			GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(ShootShaking);
+		}
+	}
 	
 	if (CannonType == ECannonType::FireProjectile)
 	{
@@ -81,7 +110,8 @@ void ACannon::Fire()
 			FVector StartTrace = ProjectileSpawnPoint->GetComponentLocation();
 			FVector EndTrace = StartTrace + ProjectileSpawnPoint->GetForwardVector() * FireRange;
 		
-
+			ShootEffect->ActivateSystem();
+			AudioEffect->Play();
 				if (GetWorld()->LineTraceSingleByChannel(hitResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, traceParams))
 				{
 					DrawDebugLine(GetWorld(), StartTrace, hitResult.Location, FColor::Red, false, 0.5f, 0, 10);
@@ -104,6 +134,7 @@ void ACannon::Fire()
 						else
 						{
 							OtherActor->Destroy();
+						
 						}
 						void Deactivate();
 					}
@@ -181,12 +212,16 @@ void ACannon::Bang()
 			if (WhizBang > 0)
 				projectile->Start();
 			WhizBang--;
+			ShootEffect->ActivateSystem();
+			AudioEffect->Play();
 		}
 		
 	}
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Purple, FString::Printf(TEXT("Fire trace")));
+		ShootEffect->ActivateSystem();
+		AudioEffect->Play();
 	}
 	GetWorld()->GetTimerManager().SetTimer(BangTimer, this, &ACannon::Bang, BangInterval, false);
 }

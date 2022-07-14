@@ -21,23 +21,33 @@ public:
 	// Sets default values for this pawn's properties
 	ATankPawn();
 
-	UFUNCTION()
+	
 	void MoveForward(float Value);
-	UFUNCTION()
+
 	void MoveRight(float Value);
-	UFUNCTION()
+	
 	void RotateRight(float Value);
 
 	
-	UFUNCTION()
 	void FireSpecial();
-	UFUNCTION()
 	void WeaponChange();
 
 	virtual void Tick(float DeltaSeconds) override;
-
 	void SetAmount(int bullets);
 
+	//for AI фкнкции патрулирование
+	UFUNCTION() // Функция возвращения 
+	TArray<FVector> GetPatrollingPoints() {return PattrollingPoints;}
+
+	UFUNCTION() //Функция возвращения точности
+	float GetAccurency() { return MovementAccurency; }
+
+	UFUNCTION()
+		FVector GetTurretForwardVector(); //Вращение турели АИ
+	UFUNCTION()
+	void RotateTurretTo(FVector TargetPosition);
+
+	FVector GetEyesPosition();//Добавляем зрение АИ танку
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,28 +67,33 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 		float RotationSpeed = 10.0f;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-		float TargetForwardAxisValue = 0.0f;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-		float TargetRightAxisValue = 0.0f;
-
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 		float InterpolationKey= 0.1f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 		float RotateInterpolationKey = 0.1f;
 
-	
 	//Getting a pointer to a controller
 	UPROPERTY()
-	class ATankController* TankController;
+		class ATankController* TankController;
+
+	//AI патрулирование
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI | Components", Meta = (MakeEditWidget = true))
+		TArray<FVector> PattrollingPoints;
+		
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI | Components")
+	float MovementAccurency = 30.0f;
+
+
+	
+	
 
 	
 
 private:
 
+	float TargetForwardAxisValue = 0.0f;
+	float TargetRightAxisValue = 0.0f;
 
 	float RotateRightAxisValue = 0.0f;
 	float CurrentRotateAxisValue = 0.0f;

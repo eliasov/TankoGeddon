@@ -7,6 +7,7 @@
 #include "Components\BoxComponent.h"
 #include "HealthComponent.h"
 #include "Cannon.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 AMachinePawn::AMachinePawn()
@@ -29,6 +30,16 @@ AMachinePawn::AMachinePawn()
 	HealthComponent->OnDie.AddUObject(this, &AMachinePawn::Die);
 	//подписываемся на наши методы(Какой метод мы хотим вызвать при нанесении урона)
 	HealthComponent->OnHealthChanged.AddUObject(this, &AMachinePawn::DamageTaked);
+
+	//Audio effect
+	AudioEffectDamage = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioEffectDamage"));
+	AudioEffectDie = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioEffectDie"));
+
+	ShootEffectDamage = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ShootEffectDamage"));
+	ShootEffectDamage->SetupAttachment(BodyMesh);
+
+	ShootEffectDie = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ShootEffectDie"));
+	ShootEffectDie->SetupAttachment(BodyMesh);
 }
 
 
@@ -36,6 +47,8 @@ AMachinePawn::AMachinePawn()
 void AMachinePawn::TakeDamage(FDamageData DamageData)
 {
 	HealthComponent->TakeDamage(DamageData);
+	AudioEffectDamage->Play();
+	ShootEffectDamage->ActivateSystem(false);
 }
 
 void AMachinePawn::Fire()
@@ -56,6 +69,7 @@ void AMachinePawn::SetupCannon(TSubclassOf<ACannon> newCannonClass)
 	if (Cannon)
 	{
 		Cannon->Destroy();
+		
 	}
 	FActorSpawnParameters params;
 	params.Instigator = this;
@@ -67,6 +81,7 @@ void AMachinePawn::SetupCannon(TSubclassOf<ACannon> newCannonClass)
 	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
 
+
 void AMachinePawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -75,16 +90,22 @@ void AMachinePawn::BeginPlay()
 
 void AMachinePawn::Die()
 {
-	if (Cannon)
+	if (AudioEffectDie)
 	{
-		Cannon->Destroy();
+		AudioEffectDie->Play();
+	}
+	if (ShootEffectDie)
+	{
+		ShootEffectDie->ActivateSystem();
 	}
 	Destroy();
+	
 }
 
 void AMachinePawn::DamageTaked(float DamageValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Tank %s take Damage: %f, Health: %f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+	
 }
 
 

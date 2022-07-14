@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "DamageTaker.h"
 #include "GameStruct.h"
+#include "Components/AudioComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "MachinePawn.generated.h"
 
 class UStaticMeshComponent;
@@ -22,6 +24,7 @@ public:
 	virtual void TakeDamage(FDamageData DamageData) override;//Общий интерфейс на получения урона
 	void Fire(); //Общий метод стрельбы
 	void SetupCannon(TSubclassOf<ACannon> newCannonClass); //Общий метод установки пушки.
+	
 
 
 protected:
@@ -43,9 +46,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret | Components")
 		TSubclassOf<ACannon> EquippedCannonClass;//Класс пушки
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		class UHealthComponent* HealthComponent; //Здоровье
+	
+	//Effect
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UAudioComponent* AudioEffectDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UAudioComponent* AudioEffectDie;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UParticleSystemComponent* ShootEffectDie;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UParticleSystemComponent* ShootEffectDamage;
+
+	
+
+
 
 	UPROPERTY()
 		ACannon* Cannon;

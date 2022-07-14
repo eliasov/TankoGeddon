@@ -80,23 +80,13 @@ void ATankPawn::Tick(float DeltaSeconds)
 	FRotator newRotation = FRotator(0.0f, YawRotation, 0.0f);
 	SetActorRotation(newRotation);
 
-	//Tank turret rotation
-	FVector MousePos = TankController->GetMousePosition();
-	//Defining rotation
-	FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), MousePos);
-	//Getting the rotation of our turret
-	FRotator TurretRotation = TurretMesh->GetComponentRotation();
-
-
-	//Equate unnecessary coordinates y
-	targetRotation.Pitch = TurretRotation.Pitch;
-	//Equate unnecessary coordinates x
-	targetRotation.Roll = TurretRotation.Roll;
-
-
-	//Set the rotation
-	TurretMesh->SetWorldRotation(FMath::Lerp(TurretRotation, targetRotation, RotateInterpolationKey));
-
+	if (TankController)
+	{
+		//Tank turret rotation
+		FVector MousePos = TankController->GetMousePosition();
+		
+		RotateTurretTo(MousePos);
+	}
 }
 
 void ATankPawn::BeginPlay()
@@ -122,5 +112,30 @@ void ATankPawn::SetAmount(int bullets)
 	Cannon->WhizBang = Cannon->WhizBang + bullets;
 }
 
+FVector ATankPawn::GetTurretForwardVector() //Вращения турели аи
+{
+	return TurretMesh->GetForwardVector();
+}
 
+void ATankPawn::RotateTurretTo(FVector TargetPosition)
+{
+	FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition);
+	//Getting the rotation of our turret
+	FRotator TurretRotation = TurretMesh->GetComponentRotation();
+
+
+	//Equate unnecessary coordinates y
+	targetRotation.Pitch = TurretRotation.Pitch;
+	//Equate unnecessary coordinates x
+	targetRotation.Roll = TurretRotation.Roll;
+
+
+	//Set the rotation
+	TurretMesh->SetWorldRotation(FMath::Lerp(TurretRotation, targetRotation, RotateInterpolationKey));
+}
+
+FVector ATankPawn::GetEyesPosition()
+{
+	return CannonSetupPoint->GetComponentLocation();//возвращаем позицию глаз АИ танка
+}
 
