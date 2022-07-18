@@ -11,25 +11,22 @@ void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TankPawn = Cast<ATankPawn>(GetPawn()); //Получаем указатель на нашего игрока
-	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-
-	FVector pawnLocation = TankPawn->GetActorLocation();//Отслеживаем точки танка
-	MovementAccurency = TankPawn->GetAccurency(); //Получаем точность
-	TArray<FVector> points = TankPawn->GetPatrollingPoints();//получаем точки 
-
-	// следуем по точкам перемещая индекс
-	for (FVector point : points)
-	{
-		PattrollingPath.Add(point + pawnLocation);//Преобразование массива точек для работы в онтроллере
-	}
-	CurrentPattrolingIndex = 0; //Начинаем с нулевого индекса
+	Initialize();
 
 }
 
 void ATankAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);//постоянное движение вперед
+
+	if (!TankPawn)
+	{
+		Initialize();
+	}
+	if (!TankPawn)
+	{
+		return;
+	}
 
 	TankPawn->MoveForward(1);//Движение к нашей точки
 
@@ -42,14 +39,14 @@ void ATankAIController::Tick(float DeltaSeconds)
 
 float ATankAIController::GetRotationValue()
 {
-	FVector currentPoint = PattrollingPath[CurrentPattrolingIndex];//Движение к определенной точки(Точка зависит от нашего индекса)
+	FVector currentPoint = PatrollingPath[CurrentPatrollingIndex];//Движение к определенной точки(Точка зависит от нашего индекса)
 	FVector pawnLocation = TankPawn->GetActorLocation();//Получаем конкретную точку и позицию нашего игрока
 	if (FVector::Distance(currentPoint, pawnLocation) <= MovementAccurency)//Проверяем дистанцию
 	{
-		CurrentPattrolingIndex++;//(Если дистанция между точкой и нашего игрока меньше двигаемся от точки к точке)
-		if (CurrentPattrolingIndex >= PattrollingPath.Num())//Проверка выход за границы
+		CurrentPatrollingIndex++;//(Если дистанция между точкой и нашего игрока меньше двигаемся от точки к точке)
+		if (CurrentPatrollingIndex >= PatrollingPath.Num())//Проверка выход за границы
 		{
-			CurrentPattrolingIndex = 0;
+			CurrentPatrollingIndex = 0;
 		}
 	}
 
@@ -121,26 +118,52 @@ void ATankAIController::Fire()
 
 bool ATankAIController::IsPlayerSeen()
 {
-	FVector playerPos = PlayerPawn->GetActorLocation();	//Присваиваем позицию игрока
-	FVector eyesPos = TankPawn->GetEyesPosition();		//Присваиваем позицию глаз
-
-	FHitResult hitResult;
-
-	FCollisionQueryParams traceParams =
-		FCollisionQueryParams(FName(TEXT("FireTrace")), true, this);
-	traceParams.bTraceComplex = true;			
-	traceParams.AddIgnoredActor(TankPawn);				//Игнорируем танк павн
-	traceParams.bReturnPhysicalMaterial = false;		//Не возвращаем физ материал
-
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, eyesPos, playerPos, ECollisionChannel::ECC_Visibility, traceParams))
+	if (PlayerPawn) 
 	{
-		if (hitResult.GetActor())
-		{
-			DrawDebugLine(GetWorld(), eyesPos, hitResult.Location, FColor::Cyan, false, 0.5f, 0, 10);
-			return hitResult.GetActor() == PlayerPawn;	//Возвращаем результат нашему игроку
+		FVector playerPos = PlayerPawn->GetActorLocation();	//Присваиваем позицию игрока
+		FVector eyesPos = TankPawn->GetEyesPosition();		//Присваиваем позицию глаз
 
+		FHitResult hitResult;
+
+		FCollisionQueryParams traceParams =
+			FCollisionQueryParams(FName(TEXT("FireTrace")), true, this);
+		traceParams.bTraceComplex = true;
+		traceParams.AddIgnoredActor(TankPawn);				//Игнорируем танк павн
+		traceParams.bReturnPhysicalMaterial = false;		//Не возвращаем физ материал
+
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, eyesPos, playerPos, ECollisionChannel::ECC_Visibility, traceParams))
+		{
+			if (hitResult.GetActor())
+			{
+				DrawDebugLine(GetWorld(), eyesPos, hitResult.Location, FColor::Cyan, false, 0.5f, 0, 10);
+				return hitResult.GetActor() == PlayerPawn;	//Возвращаем результат нашему игроку
+
+			}
 		}
+		DrawDebugLine(GetWorld(), eyesPos, playerPos, FColor::Cyan, false, 0.5f, 0, 10); //Рисуем линию не до игрока
+		
 	}
-	DrawDebugLine(GetWorld(), eyesPos, playerPos, FColor::Cyan, false, 0.5f, 0, 10); //Рисуем линию не до игрока
 	return false;
+}
+
+void ATankAIController::Initialize()
+{
+	TankPawn = Cast<ATankPawn>(GetPawn()); //Получаем указатель на нашего игрока
+	
+	if (!TankPawn)
+	{
+		return;
+	}
+	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+	FVector pawnLocation = TankPawn->GetActorLocation();//Отслеживаем точки танка
+	MovementAccurency = TankPawn->GetAccurency(); //Получаем точность
+	TArray<FVector> points = TankPawn->GetPatrollingPoints();//получаем точки 
+
+	// следуем по точкам перемещая индекс
+	for (FVector point : points)
+	{
+		PatrollingPath.Add(point);//Преобразование массива точек для работы в контроллере
+	}
+	CurrentPatrollingIndex = 0; //Начинаем с нулевого индекса
 }

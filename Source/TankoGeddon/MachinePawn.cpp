@@ -104,7 +104,7 @@ void AMachinePawn::Die()
 
 void AMachinePawn::DamageTaked(float DamageValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s take Damage: %f, Health: %f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s take Damage: %f, Health: %f"), *GetName(), DamageValue, HealthComponent->GetHealth());
 	
 }
 

@@ -11,6 +11,7 @@
 #include "Cannon.h"
 #include "Components\ArrowComponent.h"
 #include "HealthComponent.h"
+#include "Engine/TargetPoint.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -111,6 +112,23 @@ void ATankPawn::SetAmount(int bullets)
 {
 	Cannon->WhizBang = Cannon->WhizBang + bullets;
 }
+
+TArray<FVector> ATankPawn::GetPatrollingPoints()
+{
+	TArray<FVector> points;//Массив из ATargetpoint но при этом возвращаем их позицию
+	for (ATargetPoint* point : PatrollingPoints)
+	{
+		points.Add(point->GetActorLocation());
+		
+	}
+	return points;
+}
+
+void ATankPawn::SetPatrollingPoints(TArray<ATargetPoint*> NewPatrollingPoints)
+{
+	PatrollingPoints = NewPatrollingPoints;
+}
+
 
 FVector ATankPawn::GetTurretForwardVector() //Вращения турели аи
 {

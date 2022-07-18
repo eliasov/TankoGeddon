@@ -23,9 +23,9 @@ protected:
 		class APawn* PlayerPawn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI | Movement", Meta = (MakeEditWidget = true)) 
-	TArray<FVector> PattrollingPath; //Путь
+	TArray<FVector> PatrollingPath; //Путь
 
-	int32 CurrentPattrolingIndex = 0; //Индекс патрулирования Нулевая точка
+	int32 CurrentPatrollingIndex = 0; //Индекс патрулирования Нулевая точка
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI | Movement")
 	float MovementAccurency; //Видимость
@@ -50,5 +50,8 @@ protected:
 
 	void Fire();
 	bool IsPlayerSeen();//Видим ли мы игрока
+
+	//метод на инициализацию(Проверка на возрождения танка и задаем ему путь)
+	void Initialize();
 
 };
