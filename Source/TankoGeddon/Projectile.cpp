@@ -7,6 +7,8 @@
 #include "Components/PrimitiveComponent.h"
 #include "GameStruct.h"
 #include "DamageTaker.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "TimerManager.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -25,7 +27,8 @@ AProjectile::AProjectile()
 
 	ProjectileMesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	
-
+	ShootEffectProjectile = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ShootEffectProjectile"));
+	ShootEffectProjectile->SetupAttachment(ProjectileMesh);
 
 }
 
@@ -45,6 +48,8 @@ void AProjectile::Deactivate()
 	GetWorld()->GetTimerManager().ClearTimer(MoveTimer);		//Отключаем таймер на движение
 	SetActorEnableCollision(false);								//Отключаем коллизию
 }
+
+
 
 //The movement of the projectile in the direction of travel
 void AProjectile::Move()
@@ -70,38 +75,31 @@ void AProjectile::ExplodeProject()
 
 	bool bSweepResult = GetWorld()->SweepMultiByChannel(AttachHit, startPos, endPos, Rotation, ECollisionChannel::ECC_Visibility, Shape, params);
 
-
+	
 	DrawDebugSphere(GetWorld(), startPos, ProjectileRadius, 5, FColor::Green, false, 2.0f);
 
 	if (bSweepResult)
 	{
 		for (FHitResult hitResult : AttachHit)
 		{
-			AActor* OtherActor = hitResult.GetActor();
-			if (!OtherActor)
+			AActor* otherActor = hitResult.GetActor();
+			if (!otherActor)
 			{
 				continue;
 			}
-			IDamageTaker* DamageTakerActor = Cast<IDamageTaker>(OtherActor);
-			if (DamageTakerActor)
+			IDamageTaker* damageTakerActor = Cast<IDamageTaker>(otherActor);
+			if (damageTakerActor)
 			{
-				FDamageData damageData;
-				damageData.DamageValue = Damage;
-				damageData.Instigator = GetOwner();
-				damageData.DamageMaker = this;
-
-				DamageTakerActor->TakeDamage(damageData);
+				DamageDataHP(damageTakerActor, GetOwner());
 			}
 			else
 			{
-				UPrimitiveComponent* mesh = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
+				UPrimitiveComponent* mesh = Cast<UPrimitiveComponent>(otherActor->GetRootComponent());
 				if (mesh)
 				{
 					if (mesh->IsSimulatingPhysics())
 					{
-						FVector forceVector = OtherActor->GetActorLocation() - GetActorLocation();
-						forceVector.Normalize();
-						mesh->AddForce(forceVector * PushForce, NAME_None, true);
+							AddForcePhysic(otherActor, mesh);
 					}
 				}
 
@@ -114,38 +112,67 @@ void AProjectile::ExplodeProject()
 
 
 
-void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AProjectile::AddForcePhysic(AActor* otherActor, UPrimitiveComponent* mesh)
 {
-	//Outputting an intersection with an object to the console
-	UE_LOG(LogTemp, Warning, TEXT("Projectile collided with %s, collided with component %s"), *OtherActor->GetName(), *OverlappedComp->GetName());
 	
-	//Проверка актора на получения урона
-	AActor* owner = GetOwner();
-	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
-		
-	if (OtherActor != owner && OtherActor != ownerByOwner)
-	{
-		IDamageTaker* damageTakerActor = Cast<IDamageTaker>(OtherActor);
-		if (damageTakerActor)
-		{
-			FDamageData damageData;
-			damageData.DamageValue = Damage;
-			damageData.Instigator = owner;
-			damageData.DamageMaker = this;
-
-			damageTakerActor->TakeDamage(damageData);
-		}
-		else
-		{
-			if(bEnabelExplode)
-				{
-					ExplodeProject();
-				}
-			
-		}
-		//Deactivate();
-	}
+	FVector forceVector = otherActor->GetActorLocation() - GetActorLocation();
+	forceVector.Normalize();
+	mesh->AddForce(forceVector * PushForce, NAME_None, true);
 }
 
 
+void AProjectile::DamageDataHP(IDamageTaker* DamageTakerActor, AActor* owner)
+{
+	FDamageData damageData;
+	damageData.DamageValue = Damage;
+	damageData.Instigator = owner;
+	damageData.DamageMaker = this;
+
+	DamageTakerActor->TakeDamage(damageData);
+}
+
+
+void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//Outputting an intersection with an object to the console
+	//UE_LOG(LogTemp, Warning, TEXT("Projectile collided with %s, collided with component %s"), *OtherActor->GetName(), *OverlappedComp->GetName());
+
+	//Проверка актора на получения урона
+	AActor* owner = GetOwner();
+	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
+
+	if (OtherActor != owner && OtherActor != ownerByOwner)
+	{
+		IDamageTaker* DamageTakerActor = Cast<IDamageTaker>(OtherActor);
+		if (DamageTakerActor)
+		{
+			DamageDataHP(DamageTakerActor, owner);
+
+			if (bEnabelExplode)
+			{
+				ExplodeProject();
+			}
+		}
+		else
+		{
+			UPrimitiveComponent* mesh = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
+			if (mesh)
+			{
+				if (mesh->IsSimulatingPhysics())
+				{
+					AddForcePhysic(OtherActor, mesh);
+					if (bEnabelExplode)
+					{
+						ExplodeProject();
+					}
+				}
+			}
+			
+		}
+		if (bEnabelExplode)
+			ExplodeProject();
+		ShootEffectProjectile->ActivateSystem();
+		Destroy();
+	}
+}
 

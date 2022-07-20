@@ -47,8 +47,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
 	bool bShowTrajectory = true;//Отрисовка траектории
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
-		float ExplodeRadius = 50.0f;
 
 
 	//Параметры вектора движения, траектория и точка траектории
@@ -61,7 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
 	int32 TrajectoryPointIndex;
 
-	void Explode();
+	
 
 
 };

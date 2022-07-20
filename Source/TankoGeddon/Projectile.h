@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+
 UCLASS()
 class TANKOGEDDON_API AProjectile : public AActor
 {
@@ -53,13 +54,19 @@ protected:
 		float ProjectileRadius = 50.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
-		bool bEnabelExplode = false;//Отрисовка траектории
+		bool bEnabelExplode = false;//Проверка
 
 	void ExplodeProject();
+	void AddForcePhysic(AActor* otherActor, UPrimitiveComponent* mesh);
+	void DamageDataHP(IDamageTaker* DamageTakerActor, AActor* owner);
+
 
 	//Timer
 	FTimerHandle MoveTimer;
 	FTimerHandle DeactivateTimer;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class UParticleSystemComponent* ShootEffectProjectile;
 
 };

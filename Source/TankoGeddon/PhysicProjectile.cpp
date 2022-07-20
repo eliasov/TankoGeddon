@@ -53,7 +53,10 @@ void APhysicProjectile::Move()
 		TrajectoryPointIndex++;
 		if (TrajectoryPointIndex >= CurrentTrajectory.Num())
 		{
-			Explode();
+			if (bEnabelExplode)
+			{
+				ExplodeProject();
+			}
 			Destroy();
 		}
 		else
@@ -61,66 +64,8 @@ void APhysicProjectile::Move()
 			FRotator newRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(),
 			CurrentTrajectory[TrajectoryPointIndex]);
 			SetActorRotation(newRotation);
-
 		}
 	}
 
 }
 
-void APhysicProjectile::Explode()
-{
-	FVector startPos = GetActorLocation();
-	FVector endPos = startPos + FVector(0.1f);
-
-	FCollisionShape Shape = FCollisionShape::MakeSphere(ExplodeRadius);
-	FCollisionQueryParams params = FCollisionQueryParams::DefaultQueryParam;
-	params.AddIgnoredActor(this);
-	params.bTraceComplex = true;
-	params.TraceTag = "Explode Trace";
-
-	TArray<FHitResult> AttachHit;
-
-	FQuat Rotation = FQuat::Identity;
-
-	bool bSweepResult = GetWorld()->SweepMultiByChannel(AttachHit, startPos, endPos, Rotation, ECollisionChannel::ECC_Visibility, Shape, params);
-
-	
-	DrawDebugSphere(GetWorld(), startPos, ExplodeRadius, 5, FColor::Green, false, 2.0f);
-	
-	if (bSweepResult)
-	{
-		for (FHitResult hitResult : AttachHit)
-		{
-			AActor* OtherActor = hitResult.GetActor();
-			if (!OtherActor)
-			{
-				continue;
-			}
-			IDamageTaker* DamageTakerActor = Cast<IDamageTaker>(OtherActor);
-			if (DamageTakerActor)
-			{
-				FDamageData damageData;
-				damageData.DamageValue = Damage;
-				damageData.Instigator = GetOwner();
-				damageData.DamageMaker = this;
-
-				DamageTakerActor->TakeDamage(damageData);
-			}
-			else
-			{
-				UPrimitiveComponent* mesh = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
-				if (mesh)
-				{
-					if (mesh->IsSimulatingPhysics())
-					{
-						FVector forceVector = OtherActor->GetActorLocation() - GetActorLocation();
-						forceVector.Normalize();
-						mesh->AddForce(forceVector * PushForce, NAME_None, true);
-					}
-				}
-				
-			}
-		}
-	}
-
-}
