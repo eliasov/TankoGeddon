@@ -16,7 +16,7 @@ public:
 	AProjectile();
 
 	//Method start
-	void Start();
+	virtual void Start();
 	bool bIsActivation = false;
 	void Deactivate();
 
@@ -40,11 +40,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		float DeactivateTime = 5.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	float PushForce = 1000.0f;
+
 	UFUNCTION()
 	void OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, 
 		class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	//Intersection method
-	void Move();
+	virtual void Move();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
+		float ProjectileRadius = 50.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
+		bool bEnabelExplode = false;//Отрисовка траектории
+
+	void ExplodeProject();
 
 	//Timer
 	FTimerHandle MoveTimer;

@@ -53,6 +53,67 @@ void AProjectile::Move()
 	SetActorLocation(nextPosition);
 }
 
+void AProjectile::ExplodeProject()
+{
+	FVector startPos = GetActorLocation();
+	FVector endPos = startPos + FVector(0.1f);
+
+	FCollisionShape Shape = FCollisionShape::MakeSphere(ProjectileRadius);
+	FCollisionQueryParams params = FCollisionQueryParams::DefaultQueryParam;
+	params.AddIgnoredActor(this);
+	params.bTraceComplex = true;
+	params.TraceTag = "Explode Trace";
+
+	TArray<FHitResult> AttachHit;
+
+	FQuat Rotation = FQuat::Identity;
+
+	bool bSweepResult = GetWorld()->SweepMultiByChannel(AttachHit, startPos, endPos, Rotation, ECollisionChannel::ECC_Visibility, Shape, params);
+
+
+	DrawDebugSphere(GetWorld(), startPos, ProjectileRadius, 5, FColor::Green, false, 2.0f);
+
+	if (bSweepResult)
+	{
+		for (FHitResult hitResult : AttachHit)
+		{
+			AActor* OtherActor = hitResult.GetActor();
+			if (!OtherActor)
+			{
+				continue;
+			}
+			IDamageTaker* DamageTakerActor = Cast<IDamageTaker>(OtherActor);
+			if (DamageTakerActor)
+			{
+				FDamageData damageData;
+				damageData.DamageValue = Damage;
+				damageData.Instigator = GetOwner();
+				damageData.DamageMaker = this;
+
+				DamageTakerActor->TakeDamage(damageData);
+			}
+			else
+			{
+				UPrimitiveComponent* mesh = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
+				if (mesh)
+				{
+					if (mesh->IsSimulatingPhysics())
+					{
+						FVector forceVector = OtherActor->GetActorLocation() - GetActorLocation();
+						forceVector.Normalize();
+						mesh->AddForce(forceVector * PushForce, NAME_None, true);
+					}
+				}
+
+			}
+		}
+	}
+}
+
+
+
+
+
 void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Outputting an intersection with an object to the console
@@ -60,26 +121,8 @@ void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, 
 	
 	//Проверка актора на получения урона
 	AActor* owner = GetOwner();
-	if (owner)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Owner is %s"), *owner->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Owner is null"));
-	}
-	
 	AActor* ownerByOwner = owner != nullptr ? owner->GetOwner() : nullptr;
-	if (ownerByOwner)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OwnerByOwner is %s"), *ownerByOwner->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Owner is null"));
-	}
 		
-
 	if (OtherActor != owner && OtherActor != ownerByOwner)
 	{
 		IDamageTaker* damageTakerActor = Cast<IDamageTaker>(OtherActor);
@@ -94,9 +137,13 @@ void AProjectile::OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, 
 		}
 		else
 		{
-			OtherActor->Destroy();
+			if(bEnabelExplode)
+				{
+					ExplodeProject();
+				}
+			
 		}
-		Deactivate();
+		//Deactivate();
 	}
 }
 

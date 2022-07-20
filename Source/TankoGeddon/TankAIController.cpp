@@ -135,7 +135,7 @@ bool ATankAIController::IsPlayerSeen()
 		{
 			if (hitResult.GetActor())
 			{
-				DrawDebugLine(GetWorld(), eyesPos, hitResult.Location, FColor::Cyan, false, 0.5f, 0, 10);
+				DrawDebugLine(GetWorld(), eyesPos, hitResult.Location, FColor::Purple, false, 0.5f, 0, 10);
 				return hitResult.GetActor() == PlayerPawn;	//Возвращаем результат нашему игроку
 
 			}

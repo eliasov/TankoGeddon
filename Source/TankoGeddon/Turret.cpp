@@ -18,16 +18,6 @@ ATurret::ATurret()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-
-	UStaticMesh* BodyMeshTemp = LoadObject<UStaticMesh>(this, *BodyMeshPath);
-	if (BodyMeshTemp)
-		BodyMesh->SetStaticMesh(BodyMeshTemp);
-
-	UStaticMesh* TurretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
-	if (TurretMeshTemp)
-		TurretMesh->SetStaticMesh(TurretMeshTemp);
-
-	
 }
 
 
@@ -41,6 +31,19 @@ void ATurret::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(TargetingTimer, this, &ATurret::Targeting,TargetingRate, true, TargetingRate);
 
 
+}
+
+void ATurret::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UStaticMesh* BodyMeshTemp = LoadObject<UStaticMesh>(this, *BodyMeshPath);
+	if (BodyMeshTemp)
+		BodyMesh->SetStaticMesh(BodyMeshTemp);
+
+	UStaticMesh* TurretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
+	if (TurretMeshTemp)
+		TurretMesh->SetStaticMesh(TurretMeshTemp);
 }
 
 FVector ATurret::GetEyesPosition()

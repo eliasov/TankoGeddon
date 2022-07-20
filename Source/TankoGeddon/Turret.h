@@ -25,6 +25,8 @@ class TANKOGEDDON_API ATurret : public AMachinePawn
 	 // Called when the game starts or when spawned
 	 virtual void BeginPlay() override;
 
+	 virtual void PostInitializeComponents() override;
+
 	 FVector GetEyesPosition();
 
 	 void Destroyed();		//Метод уничтожения пушки

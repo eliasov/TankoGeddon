@@ -65,10 +65,7 @@ void ACannon::Fire()
 
 		}
 
-		if (ShootShaking)
-		{
-			GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(ShootShaking);
-		}
+		
 	}
 	
 	if (CannonType == ECannonType::FireProjectile)
