@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Turret.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
@@ -20,6 +21,7 @@ public:
 	virtual void Start();
 	bool bIsActivation = false;
 	void Deactivate();
+	
 
 
 protected:

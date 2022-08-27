@@ -27,12 +27,15 @@ public:
 	void TakeDamage(FDamageData DamageData);
 
 	//метод получения состояния здоровья
+	UFUNCTION(BlueprintCallable)
 	float GetHealth() const;
 
 	//метод получения состояния здоровья
+	UFUNCTION(BlueprintCallable)
 	float GetHealthState() const;
 
 	//Метод получения здоровья
+	UFUNCTION(BlueprintCallable)
 	void AddHealth(float AddHealthValue);
 
 protected:
@@ -45,6 +48,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float MaxHealth = 25.0f;
 	//Текущее здоровье
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float CurrentHealth;
 };

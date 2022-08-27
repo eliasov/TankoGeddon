@@ -59,7 +59,5 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement params")
 	int32 TrajectoryPointIndex;
 
-	
-
 
 };

@@ -7,6 +7,7 @@
 #include "GameStruct.h"
 #include "DamageTaker.h"
 #include "MachinePawn.h"
+#include "Blueprint/UserWidget.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
@@ -86,6 +87,8 @@ protected:
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI | Components")
 	float MovementAccurency = 30.0f;
+
+	
 
 
 	

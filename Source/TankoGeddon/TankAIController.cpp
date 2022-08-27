@@ -140,7 +140,7 @@ bool ATankAIController::IsPlayerSeen()
 
 			}
 		}
-		DrawDebugLine(GetWorld(), eyesPos, playerPos, FColor::Cyan, false, 0.5f, 0, 10); //Рисуем линию не до игрока
+		//DrawDebugLine(GetWorld(), eyesPos, playerPos, FColor::Cyan, false, 0.5f, 0, 10); //Рисуем линию не до игрока
 		
 	}
 	return false;

@@ -63,7 +63,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		class UParticleSystemComponent* ShootEffectDamage;
 
-	
+	//now
+	UFUNCTION(BlueprintImplementableEvent)
+	void TakeDamageEvent();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void GameOverEvent();
 
 
 

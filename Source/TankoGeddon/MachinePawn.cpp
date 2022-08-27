@@ -47,6 +47,7 @@ AMachinePawn::AMachinePawn()
 void AMachinePawn::TakeDamage(FDamageData DamageData)
 {
 	HealthComponent->TakeDamage(DamageData);
+	TakeDamageEvent();
 	AudioEffectDamage->Play();
 	ShootEffectDamage->ActivateSystem(false);
 }
@@ -68,6 +69,7 @@ void AMachinePawn::SetupCannon(TSubclassOf<ACannon> newCannonClass)
 	}
 	if (Cannon)
 	{
+		
 		Cannon->Destroy();
 		
 	}
@@ -88,6 +90,7 @@ void AMachinePawn::BeginPlay()
 	SetupCannon(EquippedCannonClass);
 }
 
+
 void AMachinePawn::Die()
 {
 	if (AudioEffectDie)
@@ -98,9 +101,13 @@ void AMachinePawn::Die()
 	{
 		ShootEffectDie->ActivateSystem();
 	}
+	GameOverEvent();
 	Destroy();
 	
+	
 }
+
+
 
 void AMachinePawn::DamageTaked(float DamageValue)
 {

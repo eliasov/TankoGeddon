@@ -87,10 +87,10 @@ void AProjectile::ExplodeProject()
 			{
 				continue;
 			}
-			IDamageTaker* damageTakerActor = Cast<IDamageTaker>(otherActor);
-			if (damageTakerActor)
+			IDamageTaker* DamageTakerActor = Cast<IDamageTaker>(otherActor);
+			if (DamageTakerActor)
 			{
-				DamageDataHP(damageTakerActor, GetOwner());
+				DamageDataHP(DamageTakerActor, Owner);
 			}
 			else
 			{
@@ -120,7 +120,7 @@ void AProjectile::AddForcePhysic(AActor* otherActor, UPrimitiveComponent* mesh)
 	mesh->AddForce(forceVector * PushForce, NAME_None, true);
 }
 
-
+					
 void AProjectile::DamageDataHP(IDamageTaker* DamageTakerActor, AActor* owner)
 {
 	FDamageData damageData;
